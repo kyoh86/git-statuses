@@ -10,19 +10,19 @@ git-statuses
 ## Usage
 
 ```sh
-git statuses [--detail] [--all] (pathspec)
+git statuses [--detail] [--relative] (pathspec)
 ```
 
 or
 
 ```sh
-GIT_STATUSES_TARGET=(pathspec); git statuses [--detail] [--all]
+GIT_STATUSES_TARGET=(pathspec); git statuses [--detail] [--relative]
 ```
 
 or
 
 ```sh
-cd (pathspec); git statuses [--detail] [--all]
+cd (pathspec); git statuses [--detail] [--relative]
 ```
 
 ## Result
