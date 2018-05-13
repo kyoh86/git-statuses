@@ -54,4 +54,7 @@ M+ github.com/kyoh86/mogelo
 
 ## License
 
-Released under the MIT License.
+[![MIT License](http://img.shields.io/badge/license-MIT-blue.svg)](http://www.opensource.org/licenses/MIT)
+
+This is distributed under the [MIT License](http://www.opensource.org/licenses/MIT).
+
