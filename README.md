@@ -6,9 +6,11 @@
 
 **git-statuses** finds local git repositories and show statuses of them.
 
-## Installation
+## Install
 
-`go get github.com/kyoh86/git-statuses/...`
+```
+go get github.com/kyoh86/git-statuses
+```
 
 ## Usage
 
@@ -52,9 +54,8 @@ M+ github.com/kyoh86/mogelo
 |`M`   |Contains deleted/modified files |
 |`+`   |Contains untracked files        |
 
-## License
+# LICENSE
 
 [![MIT License](http://img.shields.io/badge/license-MIT-blue.svg)](http://www.opensource.org/licenses/MIT)
 
 This is distributed under the [MIT License](http://www.opensource.org/licenses/MIT).
-
