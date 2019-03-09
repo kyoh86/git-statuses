@@ -12,7 +12,7 @@ brew:
     name: homebrew-tap
   folder: Formula
   homepage: https://github.com/kyoh86/git-statuses
-  description: **git-statuses** finds local git repositories and show statuses of them.
+  description: "**git-statuses** finds local git repositories and show statuses of them."
 builds:
 - goos:
   - linux
