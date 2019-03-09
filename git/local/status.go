@@ -95,7 +95,9 @@ func (w *RepositoryStatusCollector) Close() RepositoryStatus {
 
 func ShortStatus(path string, out io.Writer, err io.Writer) error {
 	collector := &RepositoryStatusCollector{}
-	Status(path, collector, err)
+	if err := Status(path, collector, err); err != nil {
+		return err
+	}
 	code := collector.Close()
 
 	if code != StatusCodeClear {

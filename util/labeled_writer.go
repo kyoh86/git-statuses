@@ -41,18 +41,32 @@ func (w *labeledWriter) SetLabel(label string) {
 	w.once = sync.Once{}
 }
 
-func (w *labeledWriter) Write(p []byte) (int, error) {
+func (w *labeledWriter) Write(p []byte) (n int, retErr error) {
 	str := string(p)
 	w.once.Do(func() {
-		w.writeCore(w.label)
-		w.writeCore(newline)
+		if _, err := w.writeCore(w.label); err != nil && retErr == nil {
+			retErr = err
+			return
+		}
+		if _, err := w.writeCore(newline); err != nil && retErr == nil {
+			retErr = err
+		}
 	})
+	if retErr != nil {
+		return 0, retErr
+	}
 
-	w.writeCore(w.prefix)
-	w.writeCore(strings.Replace(strings.TrimSuffix(str, newline), newline, w.replace, -1))
+	if _, err := w.writeCore(w.prefix); err != nil {
+		return 0, err
+	}
+	if _, err := w.writeCore(strings.Replace(strings.TrimSuffix(str, newline), newline, w.replace, -1)); err != nil {
+		return 0, err
+	}
 
 	if strings.HasSuffix(str, newline) {
-		w.writeCore(newline)
+		if _, err := w.writeCore(newline); err != nil {
+			return 0, err
+		}
 		w.prefix = w.indent
 	} else {
 		w.prefix = ""

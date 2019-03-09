@@ -27,14 +27,14 @@ func (w *SimpleLabeledWriter) Write(p []byte) (int, error) {
 	w.output = true
 	str := string(p)
 
-	w.writeCore(strings.Replace(str, newline, "", -1))
-
-	return len(p), nil
+	return w.writeCore(strings.Replace(str, newline, "", -1))
 }
 
 func (w *SimpleLabeledWriter) Close() error {
 	if w.output {
-		w.writeCore(w.label + "\n")
+		if _, err := w.writeCore(w.label + "\n"); err != nil {
+			return err
+		}
 	}
 	//FIXME: if w.base is io.Closer
 	return nil

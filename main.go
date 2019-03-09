@@ -16,6 +16,7 @@ func main() {
 
 	errorMap := map[string]error{}
 	for _, targetPath := range conf.TargetPaths {
+		targetPath := targetPath
 		if err := local.WalkOnRepositories(targetPath, func(repositoryPath string) error {
 			output := conf.WrapStatusOutput(targetPath, repositoryPath, os.Stdout)
 			defer output.Close()

@@ -46,7 +46,9 @@ func FromArgs(args []string) (*Config, error) {
 	app.Arg("pathspec", "path for directory to find repositories").ExistingDirsVar(&conf.TargetPaths)
 	app.Flag("detail", "show detail results").Short('d').BoolVar(&conf.Detail)
 	app.Flag("relative", "show relative results").Short('r').BoolVar(&conf.Relative)
-	app.Parse(args)
+	if _, err := app.Parse(args); err != nil {
+		return nil, err
+	}
 
 	if len(conf.TargetPaths) == 0 {
 		conf.TargetPaths = filepath.SplitList(os.Getenv(envNameTarget))
