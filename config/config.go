@@ -5,10 +5,9 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/alecthomas/kingpin"
 	"github.com/kyoh86/git-statuses/git/local"
 	"github.com/kyoh86/git-statuses/util"
-
-	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 const envNameTarget = "GIT_STATUSES_TARGET"
@@ -39,10 +38,9 @@ func (c *Config) Status(path string, out io.Writer, err io.Writer) error {
 	return local.ShortStatus(path, out, err)
 }
 
-func FromArgs(args []string) (*Config, error) {
+func FromArgs(args []string, app *kingpin.Application) (*Config, error) {
 	conf := Config{TargetPaths: []string{}}
 
-	app := kingpin.New("git-statuses", "find local git repositories and show statuses of them").Version("1.0")
 	app.Arg("pathspec", "path for directory to find repositories").ExistingDirsVar(&conf.TargetPaths)
 	app.Flag("detail", "show detail results").Short('d').BoolVar(&conf.Detail)
 	app.Flag("relative", "show relative results").Short('r').BoolVar(&conf.Relative)
