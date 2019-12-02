@@ -41,31 +41,33 @@ func (w *labeledWriter) SetLabel(label string) {
 	w.once = sync.Once{}
 }
 
-func (w *labeledWriter) Write(p []byte) (n int, retErr error) {
+func (w *labeledWriter) Write(p []byte) (retN int, retErr error) {
 	str := string(p)
 	w.once.Do(func() {
-		if _, err := w.writeCore(w.label); err != nil && retErr == nil {
+		if n, err := w.writeCore(w.label); err != nil && retErr == nil {
 			retErr = err
+			retN = n
 			return
 		}
-		if _, err := w.writeCore(newline); err != nil && retErr == nil {
+		if n, err := w.writeCore(newline); err != nil && retErr == nil {
 			retErr = err
+			retN = n
 		}
 	})
 	if retErr != nil {
 		return 0, retErr
 	}
 
-	if _, err := w.writeCore(w.prefix); err != nil {
-		return 0, err
+	if n, err := w.writeCore(w.prefix); err != nil {
+		return n, err
 	}
-	if _, err := w.writeCore(strings.Replace(strings.TrimSuffix(str, newline), newline, w.replace, -1)); err != nil {
-		return 0, err
+	if n, err := w.writeCore(strings.Replace(strings.TrimSuffix(str, newline), newline, w.replace, -1)); err != nil {
+		return n, err
 	}
 
 	if strings.HasSuffix(str, newline) {
-		if _, err := w.writeCore(newline); err != nil {
-			return 0, err
+		if n, err := w.writeCore(newline); err != nil {
+			return n, err
 		}
 		w.prefix = w.indent
 	} else {
