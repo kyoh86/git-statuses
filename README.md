@@ -1,10 +1,9 @@
 # git-statuses
 
-[![Go Report Card](https://goreportcard.com/badge/github.com/kyoh86/git-statuses)](https://goreportcard.com/report/github.com/kyoh86/git-statuses)
-[![CircleCI](https://img.shields.io/circleci/project/github/kyoh86/git-statuses.svg)](https://circleci.com/gh/kyoh86/git-statuses)
-[![Coverage Status](https://img.shields.io/codecov/c/github/kyoh86/git-statuses.svg)](https://codecov.io/gh/kyoh86/git-statuses)
-
 **git-statuses** finds local git repositories and show statuses of them.
+
+[![Go Report Card](https://goreportcard.com/badge/github.com/kyoh86/git-statuses)](https://goreportcard.com/report/github.com/kyoh86/git-statuses)
+[![Coverage Status](https://img.shields.io/codecov/c/github/kyoh86/git-statuses.svg)](https://codecov.io/gh/kyoh86/git-statuses)
 
 ## Install
 

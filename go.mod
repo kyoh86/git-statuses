@@ -7,3 +7,5 @@ require (
 	github.com/stretchr/testify v1.3.0 // indirect
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 )
+
+go 1.13
