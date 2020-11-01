@@ -2,6 +2,7 @@
 
 **git-statuses** finds local git repositories and show statuses of them.
 
+[![PkgGoDev](https://pkg.go.dev/badge/kyoh86/git-statuses)](https://pkg.go.dev/kyoh86/git-statuses)
 [![Go Report Card](https://goreportcard.com/badge/github.com/kyoh86/git-statuses)](https://goreportcard.com/report/github.com/kyoh86/git-statuses)
 [![Coverage Status](https://img.shields.io/codecov/c/github/kyoh86/git-statuses.svg)](https://codecov.io/gh/kyoh86/git-statuses)
 [![Release](https://github.com/kyoh86/git-statuses/workflows/Release/badge.svg)](https://github.com/kyoh86/git-statuses/releases)
