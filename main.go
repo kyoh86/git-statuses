@@ -89,7 +89,7 @@ func statDir(ctx context.Context, path string) error {
 	}
 	stat, err := tree.Status()
 	if err != nil {
-		// return fmt.Errorf("get status: %w", err)
+		return fmt.Errorf("get status: %w", err)
 	}
 	for _, file := range stat {
 		if file.Staging == git.Unmodified && file.Worktree == git.Unmodified {
