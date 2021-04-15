@@ -89,7 +89,7 @@ func statDir(ctx context.Context, path string) error {
 	}
 	stat, err := tree.Status()
 	if err != nil {
-		return fmt.Errorf("get status: %w", err)
+		// return fmt.Errorf("get status: %w", err)
 	}
 	for _, file := range stat {
 		if file.Staging == git.Unmodified && file.Worktree == git.Unmodified {
@@ -147,6 +147,7 @@ func countCommit(ctx context.Context, repo *git.Repository, until *plumbing.Refe
 		case until.Hash():
 			inc = 1
 		case since.Hash():
+			cnt += inc
 			inc = 0
 		default:
 			cnt += inc
