@@ -1,13 +1,31 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"os"
+	"path/filepath"
 
-	"github.com/alecthomas/kingpin"
-	"github.com/kyoh86/git-statuses/config"
-	"github.com/kyoh86/git-statuses/git/local"
+	"github.com/apex/log"
+	"github.com/apex/log/handlers/cli"
+	git "github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/plumbing"
+	"github.com/go-git/go-git/v5/plumbing/object"
+	"github.com/spf13/cobra"
 )
+
+func main() {
+	ctx := log.NewContext(context.Background(), &log.Logger{
+		Handler: cli.New(os.Stderr),
+		Level:   log.InfoLevel,
+	})
+	facadeCommand.Flags().BoolVarP(&flags.Detail, "detail", "d", false, "show detail results")
+	facadeCommand.Flags().BoolVarP(&flags.Relative, "relative", "r", false, "show relative results")
+	if err := facadeCommand.ExecuteContext(ctx); err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+}
 
 // nolint
 var (
@@ -16,34 +34,129 @@ var (
 	date    = "snapshot"
 )
 
-func main() {
-	app := kingpin.New("git-statuses", "git-statuses finds local git repositories and show statuses of them.").Version(version).Author("kyoh86")
-	conf, err := config.FromArgs(os.Args[1:], app)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err.Error())
-	}
+var flags struct {
+	Detail   bool
+	Relative bool
+}
 
-	errorMap := map[string]error{}
-	for _, targetPath := range conf.TargetPaths {
-		targetPath := targetPath
-		if err := local.WalkOnRepositories(targetPath, func(repositoryPath string) error {
-			output := conf.WrapStatusOutput(targetPath, repositoryPath, os.Stdout)
-			defer output.Close()
+var facadeCommand = &cobra.Command{
+	Use:     "git-statuses",
+	Short:   "git-statuses finds local git repositories and show statuses of them",
+	Version: fmt.Sprintf("%s-%s (%s)", version, commit, date),
+	RunE: func(cmd *cobra.Command, paths []string) error {
+		if len(paths) == 0 {
+			paths = []string{"."}
+		}
+		errorMap := map[string]error{}
+		ctx := context.Background()
+		for _, targetPath := range paths {
+			if err := filepath.Walk(targetPath, func(children string, info os.FileInfo, err error) error {
+				if err != nil {
+					return err
+				}
+				if !info.IsDir() || info.Name() != ".git" {
+					return nil
+				}
 
-			errput := conf.WrapStatusOutput(targetPath, repositoryPath, os.Stderr)
-			defer errput.Close()
-
-			if err := conf.Status(repositoryPath, output, errput); err != nil {
-				fmt.Fprintln(errput, err)
+				path := filepath.Dir(filepath.Join(targetPath, children))
+				if err := statDir(path); err != nil {
+					log.FromContext(ctx).WithField("path", path).WithField("error", err).Info("failed to get stat")
+				}
+				return filepath.SkipDir
+			}); err != nil {
+				errorMap[targetPath] = err
 			}
+		}
 
-			return nil
-		}); err != nil {
-			errorMap[targetPath] = err
+		// if len(errorMap) > 0 {
+		// 	fmt.Fprintln(os.Stderr, errorMap)
+		// }
+		return nil
+	},
+}
+
+func statDir(path string) error {
+	repo, err := git.PlainOpen(path)
+	if err != nil {
+		return fmt.Errorf("open a repository: %w", err)
+	}
+	var (
+		ahead    int
+		behind   int
+		modified bool
+		untrack  bool
+	)
+	tree, err := repo.Worktree()
+	if err != nil {
+		return fmt.Errorf("get worktree: %w", err)
+	}
+	stat, err := tree.Status()
+	if err != nil {
+		return fmt.Errorf("get status: %w", err)
+	}
+	for _, file := range stat {
+		if file.Staging == git.Unmodified && file.Worktree == git.Unmodified {
+		} else if file.Staging == git.Untracked {
+			untrack = true
+		} else {
+			modified = true
 		}
 	}
-
-	if len(errorMap) > 0 {
-		fmt.Fprintln(os.Stderr, errorMap)
+	localHead, err := repo.Head()
+	if err != nil {
+		return fmt.Errorf("get a HEAD refer: %w", err)
 	}
+	br, err := repo.Branch(localHead.Name().Short())
+	if err != nil {
+		return fmt.Errorf("get a HEAD branch: %w", err)
+	}
+	if br.Remote == "" {
+		//TODO: untracking branch
+	} else {
+		// remote
+		remoteHead, err := repo.Reference(plumbing.NewRemoteReferenceName(br.Remote, br.Name), true)
+		if err != nil {
+			return fmt.Errorf("get a remote HEAD: %w", err)
+		}
+		ahead, err = countCommit(repo, localHead, remoteHead)
+		if err != nil {
+			return fmt.Errorf("count ahead: %w", err)
+		}
+		behind, err = countCommit(repo, remoteHead, localHead)
+		if err != nil {
+			return fmt.Errorf("count behind: %w", err)
+		}
+	}
+	fmt.Println(ahead, behind, modified, untrack)
+	return nil
+}
+
+func countCommit(repo *git.Repository, until *plumbing.Reference, since *plumbing.Reference) (int, error) {
+	commit, err := repo.CommitObject(since.Hash())
+	if err != nil {
+		return 0, err
+	}
+	logs, err := repo.Log(&git.LogOptions{
+		From:  until.Hash(),
+		Since: &commit.Author.When,
+	})
+	if err != nil {
+		return 0, err
+	}
+	inc := 1
+	cnt := 0
+	if err := logs.ForEach(func(c *object.Commit) error {
+		switch c.Hash {
+		case until.Hash():
+			inc = 1
+		case since.Hash():
+			inc = 0
+		default:
+			cnt += inc
+		}
+		return nil
+	}); err != nil {
+		return 0, err
+	}
+	return cnt, nil
 }

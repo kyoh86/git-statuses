@@ -4,7 +4,9 @@ require (
 	github.com/alecthomas/kingpin v2.2.6+incompatible
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751 // indirect
 	github.com/alecthomas/units v0.0.0-20190717042225-c3de453c63f4 // indirect
-	github.com/stretchr/testify v1.4.0 // indirect
+	github.com/apex/log v1.9.0
+	github.com/go-git/go-git/v5 v5.3.0
+	github.com/spf13/cobra v1.1.3
 )
 
 go 1.13

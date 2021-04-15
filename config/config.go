@@ -41,9 +41,6 @@ func (c *Config) Status(path string, out io.Writer, err io.Writer) error {
 func FromArgs(args []string, app *kingpin.Application) (*Config, error) {
 	conf := Config{TargetPaths: []string{}}
 
-	app.Arg("pathspec", "path for directory to find repositories").ExistingDirsVar(&conf.TargetPaths)
-	app.Flag("detail", "show detail results").Short('d').BoolVar(&conf.Detail)
-	app.Flag("relative", "show relative results").Short('r').BoolVar(&conf.Relative)
 	if _, err := app.Parse(args); err != nil {
 		return nil, err
 	}
