@@ -59,23 +59,20 @@ var facadeCommand = &cobra.Command{
 				}
 
 				path := filepath.Dir(filepath.Join(targetPath, children))
-				if err := statDir(path); err != nil {
-					log.FromContext(ctx).WithField("path", path).WithField("error", err).Info("failed to get stat")
+				ctx = log.NewContext(ctx, log.FromContext(ctx).WithField("path", path))
+				if err := statDir(ctx, path); err != nil {
+					log.FromContext(ctx).WithField("error", err).Info("failed to get stat")
 				}
 				return filepath.SkipDir
 			}); err != nil {
 				errorMap[targetPath] = err
 			}
 		}
-
-		// if len(errorMap) > 0 {
-		// 	fmt.Fprintln(os.Stderr, errorMap)
-		// }
 		return nil
 	},
 }
 
-func statDir(path string) error {
+func statDir(ctx context.Context, path string) error {
 	repo, err := git.PlainOpen(path)
 	if err != nil {
 		return fmt.Errorf("open a repository: %w", err)
@@ -118,11 +115,11 @@ func statDir(path string) error {
 		if err != nil {
 			return fmt.Errorf("get a remote HEAD: %w", err)
 		}
-		ahead, err = countCommit(repo, localHead, remoteHead)
+		ahead, err = countCommit(ctx, repo, localHead, remoteHead)
 		if err != nil {
 			return fmt.Errorf("count ahead: %w", err)
 		}
-		behind, err = countCommit(repo, remoteHead, localHead)
+		behind, err = countCommit(ctx, repo, remoteHead, localHead)
 		if err != nil {
 			return fmt.Errorf("count behind: %w", err)
 		}
@@ -131,7 +128,7 @@ func statDir(path string) error {
 	return nil
 }
 
-func countCommit(repo *git.Repository, until *plumbing.Reference, since *plumbing.Reference) (int, error) {
+func countCommit(ctx context.Context, repo *git.Repository, until *plumbing.Reference, since *plumbing.Reference) (int, error) {
 	commit, err := repo.CommitObject(since.Hash())
 	if err != nil {
 		return 0, err
