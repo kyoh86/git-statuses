@@ -27,16 +27,11 @@ func main() {
 	for _, targetPath := range conf.TargetPaths {
 		targetPath := targetPath
 		if err := local.WalkOnRepositories(targetPath, func(repositoryPath string) error {
-			output := conf.WrapStatusOutput(targetPath, repositoryPath, os.Stdout)
-			defer output.Close()
-
-			errput := conf.WrapStatusOutput(targetPath, repositoryPath, os.Stderr)
-			defer errput.Close()
-
-			if err := conf.Status(repositoryPath, output, errput); err != nil {
-				fmt.Fprintln(errput, err)
+			state, err := local.Status(repositoryPath, os.Stdout, os.Stderr)
+			if err != nil {
+				fmt.Fprintln(os.Stderr, err)
 			}
-
+			fmt.Println(repositoryPath, state.Branch, state.Upstream, state.Ahead, state.Behind, state.Code)
 			return nil
 		}); err != nil {
 			errorMap[targetPath] = err
