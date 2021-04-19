@@ -1,6 +1,7 @@
 package statuses
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"os"
@@ -12,8 +13,8 @@ import (
 	"github.com/apex/log"
 )
 
-func GetStatus(path string) (Status, error) {
-	collector := &collector{}
+func GetStatus(ctx context.Context, path string) (Status, error) {
+	collector := &collector{ctx: ctx}
 	cmd := exec.Command("git", "status", "--porcelain", "--branch", "--ahead-behind")
 	cmd.Stdout = collector
 	cmd.Stderr = os.Stderr
@@ -75,6 +76,7 @@ type Status struct {
 type collector struct {
 	Status
 
+	ctx     context.Context
 	surplus string
 	suspend bool
 }
@@ -166,7 +168,7 @@ func (c *collector) Write(p []byte) (n int, _ error) {
 		case errors.Is(err, errStop):
 			return
 		default:
-			log.Error(err.Error())
+			log.FromContext(c.ctx).Error(err.Error())
 		}
 	}
 	return
