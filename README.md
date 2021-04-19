@@ -16,31 +16,26 @@ go get github.com/kyoh86/git-statuses
 ## Usage
 
 ```sh
-git statuses [--detail] [--relative] (pathspec)
+git statuses [--json] (pathspec)
 ```
 
 or
 
 ```sh
-GIT_STATUSES_TARGET=(pathspec); git statuses [--detail] [--relative]
-```
-
-or
-
-```sh
-cd (pathspec); git statuses [--detail] [--relative]
+cd (pathspec); git statuses [--json]
 ```
 
 ## Result
 
 ### Sample
-```
-~ $ git statuses
- + github.com/kyoh86/git-statuses
- + github.com/kyoh86/go-jsonrider
-M  github.com/kyoh86/go-pcre
-M  github.com/kyoh86/gogh
-M+ github.com/kyoh86/mogelo
+
+```console
+$ git statuses
+-1 +2  U github.com/kyoh86/git-statuses
+-1     U github.com/kyoh86/go-jsonrider
+   +3 M  github.com/kyoh86/go-pcre
+      M  github.com/kyoh86/gogh
+      MU github.com/kyoh86/mogelo
 ```
 
 ### Format
@@ -52,8 +47,10 @@ M+ github.com/kyoh86/mogelo
 
 |status|description                     |
 |:----:|--------------------------------|
+|`+n`  |Contains ahead commits          |
+|`-n`  |Contains behind commits         |
 |`M`   |Contains deleted/modified files |
-|`+`   |Contains untracked files        |
+|`U`   |Contains untracked files        |
 
 # LICENSE
 
