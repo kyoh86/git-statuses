@@ -15,7 +15,7 @@ import (
 
 func GetStatus(ctx context.Context, path string) (Status, error) {
 	collector := &collector{ctx: ctx}
-	cmd := exec.Command("git", "status", "--porcelain", "--branch", "--ahead-behind")
+	cmd := exec.CommandContext(ctx, "git", "status", "--porcelain", "--branch", "--ahead-behind")
 	cmd.Stdout = collector
 	cmd.Stderr = os.Stderr
 	cmd.Dir = path
@@ -26,17 +26,29 @@ func GetStatus(ctx context.Context, path string) (Status, error) {
 		return Status{}, err
 	}
 	status := collector.Status
-	remote, err := getRemote(path)
-	if err != nil {
-		return Status{}, err
+	remote := getUpstreamRemote(status.Upstream)
+	if remote == "" {
+		rem, err := getRemote(path)
+		if err != nil {
+			return Status{}, err
+		}
+		remote = rem
 	}
-	url, err := getRemoteURL(path, remote)
+	url, err := getRemoteURL(ctx, path, remote)
 	if err != nil {
-		return Status{}, err
+		return Status{}, fmt.Errorf("getting remote %s from %s: %w", remote, path, err)
 	}
 	status.Path = path
 	status.URL = url
 	return status, nil
+}
+
+func getUpstreamRemote(upstream string) string {
+	parts := strings.Split(upstream, "/")
+	if len(parts) > 1 {
+		return parts[0]
+	}
+	return ""
 }
 
 func getRemote(path string) (string, error) {
@@ -46,14 +58,14 @@ func getRemote(path string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("git remote: %w", err)
 	}
-	return strings.TrimRight(string(out), "\n"), nil
+	return strings.Split(string(out), "\n")[0], nil
 }
 
-func getRemoteURL(path, remote string) (string, error) {
+func getRemoteURL(ctx context.Context, path, remote string) (string, error) {
 	if remote == "" {
 		return "", nil
 	}
-	cmd := exec.Command("git", "config", fmt.Sprintf("remote.%s.url", remote))
+	cmd := exec.CommandContext(ctx, "git", "config", fmt.Sprintf("remote.%s.url", remote))
 	cmd.Dir = path
 	out, err := cmd.Output()
 	if err != nil {
