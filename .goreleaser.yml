@@ -1,3 +1,22 @@
+# yaml-language-server: $schema=https://goreleaser.com/static/schema.json
+
+project_name: git-statuses
+builds:
+  - id: default
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+      - "386"
+    main: ./cmd/git-statuses
+    binary: git-statuses
+    ldflags: -s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}}
+    hooks:
+      post:
+        - make man VERSION={{.Version}} COMMIT={{.ShortCommit}} DATE={{.Date}}
 brews:
   - install: |
       bin.install "git-statuses"
@@ -8,20 +27,18 @@ brews:
     folder: Formula
     homepage: https://github.com/kyoh86/git-statuses
     description: Finds local git repositories and show statuses of them
-builds:
-  - goos:
-      - linux
-      - darwin
-      - windows
-    goarch:
-      - amd64
-      - arm
-      - arm64
-      - "386"
-    main: ./cmd/git-statuses
-    hooks:
-      post:
-        - make man VERSION={{.Version}} COMMIT={{.ShortCommit}} DATE={{.Date}}
+    license: MIT
+nfpms:
+  - builds:
+      - default
+    maintainer: kyoh86 <me@kyoh86.dev>
+    homepage: https://github.com/kyoh86/git-statuses
+    description: Finds local git repositories and show statuses of them
+    license: MIT
+    formats:
+      - apk
+      - deb
+      - rpm
 archives:
   - id: gzip
     format: tar.gz
