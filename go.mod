@@ -5,7 +5,7 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/saracen/walker v0.1.2
 	github.com/spf13/cobra v1.3.0
-	golang.org/x/sys v0.0.0-20220224003255-dbe011f71a99 // indirect
+	golang.org/x/sys v0.1.0 // indirect
 )
 
 go 1.13
