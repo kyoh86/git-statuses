@@ -10,7 +10,7 @@
 ## Install
 
 ```
-go get github.com/kyoh86/git-statuses
+go install github.com/kyoh86/git-statuses@latest
 ```
 
 ## Usage
