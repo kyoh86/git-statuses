@@ -5,10 +5,9 @@ require (
 	github.com/fatih/color v1.14.1 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
-	github.com/saracen/walker v0.1.3
+	github.com/saracen/walker v0.1.4
 	github.com/spf13/cobra v1.6.1
 	github.com/stretchr/testify v1.7.0 // indirect
-	golang.org/x/sync v0.1.0 // indirect
 	golang.org/x/sys v0.5.0 // indirect
 )
 
