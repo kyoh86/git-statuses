@@ -21,7 +21,7 @@ brews:
   - install: |
       bin.install "git-statuses"
       man1.install Dir.glob('git-statuses*.1')
-    tap:
+    repository:
       owner: kyoh86
       name: homebrew-tap
     directory: Formula
