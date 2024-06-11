@@ -24,7 +24,7 @@ brews:
     tap:
       owner: kyoh86
       name: homebrew-tap
-    folder: Formula
+    directory: Formula
     homepage: https://github.com/kyoh86/git-statuses
     description: Finds local git repositories and show statuses of them
     license: MIT
